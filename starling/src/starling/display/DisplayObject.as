@@ -24,7 +24,9 @@ package starling.display
     import starling.events.EventDispatcher;
     import starling.events.TouchEvent;
     import starling.filters.FragmentFilter;
+    import starling.utils.HAlign;
     import starling.utils.MatrixUtil;
+    import starling.utils.VAlign;
     
     /** Dispatched when an object is added to a parent. */
     [Event(name="added", type="starling.events.Event")]
@@ -161,10 +163,11 @@ package starling.display
             removeEventListeners();
         }
         
-        /** Removes the object from its parent, if it has one. */
+        /** Removes the object from its parent, if it has one, and optionally disposes it. */
         public function removeFromParent(dispose:Boolean=false):void
         {
             if (mParent) mParent.removeChild(this, dispose);
+            else if (dispose) this.dispose();
         }
         
         /** Creates a matrix that represents the transformation from the local coordinate system 
@@ -315,6 +318,24 @@ package starling.display
         public function get hasVisibleArea():Boolean
         {
             return mAlpha != 0.0 && mVisible && mScaleX != 0.0 && mScaleY != 0.0;
+        }
+        
+        /** Moves the pivot point to a certain position within the local coordinate system
+         *  of the object. If you pass no arguments, it will be centered. */ 
+        public function alignPivot(hAlign:String="center", vAlign:String="center"):void
+        {
+            var bounds:Rectangle = getBounds(this);
+            mOrientationChanged = true;
+            
+            if (hAlign == HAlign.LEFT)        mPivotX = bounds.x;
+            else if (hAlign == HAlign.CENTER) mPivotX = bounds.x + bounds.width / 2.0;
+            else if (hAlign == HAlign.RIGHT)  mPivotX = bounds.x + bounds.width; 
+            else throw new ArgumentError("Invalid horizontal alignment: " + hAlign);
+            
+            if (vAlign == VAlign.TOP)         mPivotY = bounds.y;
+            else if (vAlign == VAlign.CENTER) mPivotY = bounds.y + bounds.height / 2.0;
+            else if (vAlign == VAlign.BOTTOM) mPivotY = bounds.y + bounds.height;
+            else throw new ArgumentError("Invalid vertical alignment: " + vAlign);
         }
         
         // internal methods
